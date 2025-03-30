@@ -3,8 +3,13 @@ import os
 import random
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Define the uploads directory
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+# Create the directory if it doesn't exist
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
