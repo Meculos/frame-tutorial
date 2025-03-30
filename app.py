@@ -34,6 +34,8 @@ def random_image():
 
     # Return JSON formatted for Farcaster Frames
     return jsonify({
+        "title": "Pick an Option",   # Required title
+        "description": "Choose A, B, or C",  # Required description
         "image": image_url,
         "buttons": [
             {"label": "A", "action": "post", "target": request.url},
