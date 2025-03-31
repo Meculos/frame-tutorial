@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, send_from_directory, url_for, render_template_string
+from flask import Flask, request, jsonify, send_from_directory, url_for, Response
+from flask_cors import CORS
 import os
 import random
 
 app = Flask(__name__)
+CORS(app)
 # Define the uploads directory
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -32,24 +34,23 @@ def random_image():
     selected_image = random.choice(images)
     image_url = url_for('uploaded_file', filename=selected_image, _external=True)
 
-    # Render an HTML response with OpenGraph metadata (needed for Farcaster)
-    html_template = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta property="og:title" content="Random Image Frame" />
-        <meta property="og:description" content="Click to reveal a new random image!" />
-        <meta property="og:image" content="{image_url}" />
-        <meta property="fc:frame" content="vNext" />
-        <meta property="fc:button:1" content="Next Image" />
-        <meta property="fc:action:1" content="/random-image" />
-    </head>
-    <body>
-        <p>Click the button below to get a new image.</p>
-    </body>
-    </html>
-    """
-    return render_template_string(html_template)
+    response_data = {
+        "frames": [
+            {
+                "image": image_url,
+                "post_url": "https://frame-tutorial-ggcs.onrender.com/random-image",
+                "buttons": [
+                    {
+                        "label": "Next Image",
+                        "action": "post",
+                        "target": "https://frame-tutorial-ggcs.onrender.com/random-image"
+                    }
+                ]
+            }
+        ]
+    }
+
+    return Response(response=jsonify(response_data).data, content_type="application/json")
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
